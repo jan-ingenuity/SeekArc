@@ -56,6 +56,6 @@ android {
 }
 
 dependencies {
-    compile project(':SeekArc_library')
+    compile project(':library')
     compile "com.android.support:appcompat-v7:23.0.1"
 }
