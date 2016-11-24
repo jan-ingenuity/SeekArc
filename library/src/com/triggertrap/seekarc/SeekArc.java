@@ -76,6 +76,11 @@ public class SeekArc extends View {
 	 * The Width of the background arc for the SeekArc 
 	 */
 	private int mArcWidth = 2;
+
+	/**
+	 * The dimension of allowance that the arc will accept inputs outside of the arc drawing
+	 */
+	private int mArcAllowance = 0;
 	
 	/**
 	 * The Angle to start drawing this Arc from
@@ -112,6 +117,7 @@ public class SeekArc extends View {
 	 * is the control enabled/touchable
  	 */
 	private boolean mEnabled = true;
+	private boolean mAccepts = false;
 
 	// Internal variables
 	private int mArcRadius = 0;
@@ -125,6 +131,7 @@ public class SeekArc extends View {
 	private int mThumbYPos;
 	private double mTouchAngle;
 	private float mTouchIgnoreRadius;
+	private float mTouchOuterRadius;
 	private OnSeekArcChangeListener mOnSeekArcChangeListener;
 
 	public interface OnSeekArcChangeListener {
@@ -139,7 +146,7 @@ public class SeekArc extends View {
 		 * @param progress
 		 *            The current progress level. This will be in the range
 		 *            0..max where max was set by
-		 *            {@link ProgressArc#setMax(int)}. (The default value for
+		 *            {@link SeekArc#setMax(int)}. (The default value for
 		 *            max is 100.)
 		 * @param fromUser
 		 *            True if the progress change was initiated by the user.
@@ -215,10 +222,12 @@ public class SeekArc extends View {
 
 			mMax = a.getInteger(R.styleable.SeekArc_max, mMax);
 			mProgress = a.getInteger(R.styleable.SeekArc_progress, mProgress);
-			mProgressWidth = (int) a.getDimension(
-					R.styleable.SeekArc_progressWidth, mProgressWidth);
+			mProgressWidth = (int) a.getDimension(R.styleable.SeekArc_progressWidth,
+					mProgressWidth);
 			mArcWidth = (int) a.getDimension(R.styleable.SeekArc_arcWidth,
 					mArcWidth);
+			mArcAllowance = (int) a.getDimension(R.styleable.SeekArc_arcAllowance,
+					mArcAllowance);
 			mStartAngle = a.getInt(R.styleable.SeekArc_startAngle, mStartAngle);
 			mSweepAngle = a.getInt(R.styleable.SeekArc_sweepAngle, mSweepAngle);
 			mRotation = a.getInt(R.styleable.SeekArc_rotation, mRotation);
@@ -268,7 +277,7 @@ public class SeekArc extends View {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas) {		
+	protected void onDraw(Canvas canvas) {
 		if(!mClockwise) {
 			canvas.scale(-1, 1, mArcRect.centerX(), mArcRect.centerY() );
 		}
@@ -296,19 +305,24 @@ public class SeekArc extends View {
 		final int width = getDefaultSize(getSuggestedMinimumWidth(),
 				widthMeasureSpec);
 		final int min = Math.min(width, height);
-		float top = 0;
-		float left = 0;
-		int arcDiameter = 0;
+		float top;
+		float left;
+		float arcRadius;
+		int arcDiameter;
 
 		mTranslateX = (int) (width * 0.5f);
 		mTranslateY = (int) (height * 0.5f);
 		
 		arcDiameter = min - getPaddingLeft();
-		mArcRadius = arcDiameter / 2;
-		top = height / 2 - (arcDiameter / 2);
-		left = width / 2 - (arcDiameter / 2);
+		arcRadius = arcDiameter / 2;
+		top = height / 2 - arcRadius;
+		left = width / 2 - arcRadius;
+
+		mArcRadius = (int)arcRadius;
+		mTouchOuterRadius = mArcRadius + mArcWidth + mArcAllowance;
+
 		mArcRect.set(left, top, left + arcDiameter, top + arcDiameter);
-	
+
 		int arcStart = (int)mProgressSweep + mStartAngle  + mRotation + 90;
 		mThumbXPos = (int) (mArcRadius * Math.cos(Math.toRadians(arcStart)));
 		mThumbYPos = (int) (mArcRadius * Math.sin(Math.toRadians(arcStart)));
@@ -369,23 +383,29 @@ public class SeekArc extends View {
 	}
 
 	private void updateOnTouch(MotionEvent event) {
-		boolean ignoreTouch = ignoreTouch(event.getX(), event.getY());
-		if (ignoreTouch) {
+		float x = event.getX();
+		float y = event.getY();
+
+		if (event.getAction() == MotionEvent.ACTION_DOWN)
+			mAccepts = !ignoreTouch(x, y);
+
+		if (!mAccepts)
 			return;
-		}
+
 		setPressed(true);
-		mTouchAngle = getTouchDegrees(event.getX(), event.getY());
+		mTouchAngle = getTouchDegrees(x, y);
 		int progress = getProgressForAngle(mTouchAngle);
 		onProgressRefresh(progress, true);
 	}
 
 	private boolean ignoreTouch(float xPos, float yPos) {
-		boolean ignore = false;
 		float x = xPos - mTranslateX;
 		float y = yPos - mTranslateY;
-
 		float touchRadius = (float) Math.sqrt(((x * x) + (y * y)));
-		if (touchRadius < mTouchIgnoreRadius) {
+
+		boolean ignore = false;
+
+		if (touchRadius < mTouchIgnoreRadius || touchRadius > mTouchOuterRadius) {
 			ignore = true;
 		}
 		return ignore;
@@ -394,15 +414,18 @@ public class SeekArc extends View {
 	private double getTouchDegrees(float xPos, float yPos) {
 		float x = xPos - mTranslateX;
 		float y = yPos - mTranslateY;
+
 		//invert the x-coord if we are rotating anti-clockwise
-		x= (mClockwise) ? x:-x;
+		x = (mClockwise) ? x:-x;
 		// convert to arc Angle
 		double angle = Math.toDegrees(Math.atan2(y, x) + (Math.PI / 2)
 				- Math.toRadians(mRotation));
+
 		if (angle < 0) {
 			angle = 360 + angle;
 		}
 		angle -= mStartAngle;
+
 		return angle;
 	}
 
@@ -460,7 +483,7 @@ public class SeekArc extends View {
 	 * @param l
 	 *            The seek bar notification listener
 	 * 
-	 * @see SeekArc.OnSeekBarChangeListener
+	 * @see SeekArc.OnSeekArcChangeListener
 	 */
 	public void setOnSeekArcChangeListener(OnSeekArcChangeListener l) {
 		mOnSeekArcChangeListener = l;
