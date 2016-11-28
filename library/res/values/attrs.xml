@@ -36,6 +36,7 @@
         <attr name="sweepAngle" format="integer" />
         <attr name="arcColor" format="color" />
         <attr name="progressColor" format="color" />
+        <attr name="proposedColor" format="color" />
         <attr name="roundEdges" format="boolean" />
         <attr name="touchInside" format="boolean" />
         <attr name="clockwise" format="boolean" />

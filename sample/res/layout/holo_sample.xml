@@ -49,7 +49,7 @@
             seekarc:startAngle="30"
             seekarc:sweepAngle="300"
             seekarc:touchInside="true"
-            seekarc:arcAllowance="48dp"
+            seekarc:arcAllowance="24dp"
 
             />
 
