@@ -376,8 +376,8 @@ public class SeekArc extends View {
 					updateOnTouch(event);
 					break;
 				case MotionEvent.ACTION_UP:
-					updateOnTouch(event);
 					onStopTrackingTouch();
+					updateOnTouch(event);
 					this.getParent().requestDisallowInterceptTouchEvent(false);
 					break;
 				case MotionEvent.ACTION_CANCEL:
@@ -471,10 +471,12 @@ public class SeekArc extends View {
 	private int getProgressForAngle(double angle) {
 		int touchProgress = (int) Math.round(valuePerDegree() * angle);
 
-		touchProgress = (touchProgress < 0) ? INVALID_PROGRESS_VALUE
-				: touchProgress;
-		touchProgress = (touchProgress > mMax) ? INVALID_PROGRESS_VALUE
-				: touchProgress;
+		touchProgress = (touchProgress < 0) ? INVALID_PROGRESS_VALUE : touchProgress;
+		touchProgress = (touchProgress > mMax) ? INVALID_PROGRESS_VALUE : touchProgress;
+
+		if (!mDragging)
+			touchProgress = touchProgress == INVALID_PROGRESS_VALUE ? 0 : touchProgress;
+
 		return touchProgress;
 	}
 
@@ -501,7 +503,6 @@ public class SeekArc extends View {
 	}
 	
 	private void updateProgress(int progress, boolean fromUser) {
-
 		if (progress == INVALID_PROGRESS_VALUE) {
 			return;
 		}
