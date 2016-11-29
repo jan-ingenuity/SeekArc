@@ -118,6 +118,7 @@ public class SeekArc extends View {
 	 * is the control enabled/touchable
  	 */
 	private boolean mEnabled = true;
+	private boolean mAccepts = false;
 	private boolean mDragging = false;
 
 	// Internal variables
@@ -420,9 +421,13 @@ public class SeekArc extends View {
 
 		int action = event.getAction();
 
+		if (action == MotionEvent.ACTION_DOWN)
+			mAccepts = !ignoreTouch(x, y);
+
+		if (!mAccepts)
+			return;
+
 		if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE) {
-			if (action == MotionEvent.ACTION_DOWN && ignoreTouch(x, y))
-				return;
 
 			setPressed(true);
 			mDragging = true;
@@ -447,6 +452,7 @@ public class SeekArc extends View {
 		if (touchRadius < mTouchIgnoreRadius || touchRadius > mTouchOuterRadius) {
 			ignore = true;
 		}
+
 		return ignore;
 	}
 
