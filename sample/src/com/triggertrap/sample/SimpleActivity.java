@@ -187,13 +187,6 @@ public class SimpleActivity extends Activity {
 			}
 		});
 		
-		mTouchInside.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			   @Override
-			   public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
-				   mSeekArc.setTouchInSide(isChecked);
-			   }
-		});
-		
 		mClockwise.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			   @Override
 			   public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {

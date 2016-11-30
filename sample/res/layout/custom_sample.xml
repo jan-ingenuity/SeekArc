@@ -52,8 +52,7 @@
             seekarc:rotation="180"
             seekarc:startAngle="30"
             seekarc:sweepAngle="300"
-            seekarc:thumb="@drawable/custom_seek_arc_control_selector"
-            seekarc:touchInside="true" />
+            seekarc:thumb="@drawable/custom_seek_arc_control_selector"/>
 
         <TextView
             android:id="@+id/seekArcProgress"
