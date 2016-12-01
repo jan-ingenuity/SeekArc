@@ -302,17 +302,19 @@ public class SeekArc extends View {
 		// Draw the arcs
 		final int arcStart = mStartAngle + mAngleOffset + mRotation;
 		final int arcSweep = mSweepAngle;
-		canvas.drawArc(mArcRect, arcStart, arcSweep, false, mArcPaint);
-		canvas.drawArc(mArcRect, arcStart, mProgressSweep, false, mProgressPaint);
 
-		if (mDragging) {
+		canvas.drawArc(mArcRect, arcStart, arcSweep, false, mArcPaint);
+
+		if (mProgressSweep > 0)
+			canvas.drawArc(mArcRect, arcStart, mProgressSweep, false, mProgressPaint);
+
+		if (mDragging && mProposedSweep - mProgressSweep != 0) {
 			// start: at the current progress degree
 			// sweep: only the different between the proposed and current progress.
-			//			swap the polarity of the sweep.
 			canvas.drawArc(
 				mArcRect,
 				arcStart + mProgressSweep,
-				-(mProgressSweep - mProposedSweep),
+				mProposedSweep - mProgressSweep,
 				false,
 				mProposedPaint
 			);
