@@ -450,15 +450,6 @@ public class SeekArc extends View {
 
 		boolean ignore = false;
 
-		Log.d("Ingenuity/Labs", String.format(
-			"Touch Radius: %f\n" +
-			"Outer Radius: %d\n" +
-			"Inner Radius: %d\n",
-			touchRadius,
-			mBoundsOuterRadius,
-			mBoundsInnerRadius
-		));
-
 		if (touchRadius < mBoundsInnerRadius || touchRadius > mBoundsOuterRadius) {
 			ignore = true;
 		}
@@ -486,13 +477,14 @@ public class SeekArc extends View {
 	private int getProgressForAngle(double angle) {
 		int touchProgress = (int) Math.round(valuePerDegree() * angle);
 
-		touchProgress = (touchProgress < 0) ? INVALID_PROGRESS_VALUE : touchProgress;
-		touchProgress = (touchProgress > mMax) ? INVALID_PROGRESS_VALUE : touchProgress;
+		if (mDragging) {
+			touchProgress = (touchProgress < 0) ? INVALID_PROGRESS_VALUE : touchProgress;
+			touchProgress = (touchProgress > mMax) ? INVALID_PROGRESS_VALUE : touchProgress;
 
-		if (!mDragging)
-			touchProgress = touchProgress == INVALID_PROGRESS_VALUE ? 0 : touchProgress;
-
-		return touchProgress;
+			return touchProgress;
+		}
+		else
+			return -1;
 	}
 
 	private float valuePerDegree() {
@@ -503,7 +495,7 @@ public class SeekArc extends View {
 		if (mDragging)
 			updateDelta(progress, fromUser);
 		else
-			updateProgress(progress, fromUser);
+			updateProgress(mProgress, fromUser);
 	}
 
 	private void updateThumbPosition() {
@@ -521,10 +513,6 @@ public class SeekArc extends View {
 		if (progress == INVALID_PROGRESS_VALUE) {
 			return;
 		}
-
-		progress = (progress > mMax) ? mMax : progress;
-		progress = (progress < 0) ? 0 : progress;
-		mProgress = progress;
 
 		if (mOnSeekArcChangeListener != null)
 			mOnSeekArcChangeListener.onProgressChanged(this, progress, fromUser);
