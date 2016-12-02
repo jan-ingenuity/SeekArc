@@ -46,22 +46,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.triggertrap.sample.SimpleActivity"
-            android:label="@string/title_activity_simple" >
+            android:name="com.triggertrap.sample.DefaultActivity"
+            android:label="@string/title__default" >
         </activity>
 
         <activity
-            android:name="com.triggertrap.sample.ScrollViewActivity"
-            android:label="@string/title_activity_scrollview" >
-        </activity>
-
-        <activity
-            android:name="com.triggertrap.sample.DisabledActivity"
-            android:label="@string/title_activity_disabled" >
-        </activity>
-        <activity
-            android:name="com.triggertrap.sample.CustomActivity"
-            android:label="@string/title_activity_custom" >
+            android:name="com.triggertrap.sample.ContinuousActivity"
+            android:label="@string/title__continuous" >
         </activity>
     </application>
 

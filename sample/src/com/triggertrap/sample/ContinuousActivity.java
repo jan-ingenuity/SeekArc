@@ -25,16 +25,13 @@ package com.triggertrap.sample;
 
 /**
  * 
- * CustomActivity.java
+ * ContinuousActivity.java
  * @author Neil Davies
  * 
  */
-public class CustomActivity extends SimpleActivity {
-
-
+public class ContinuousActivity extends DefaultActivity {
 	@Override
 	protected int getLayoutFile() {
-		return R.layout.custom_sample;
+		return R.layout.sample__continuous;
 	}
-
 }

@@ -45,14 +45,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:padding="30dp"
-            seekarc:arcColor="@color/dark_red"
             seekarc:clockwise="true"
             seekarc:max="150"
-            seekarc:progressColor="@color/red"
             seekarc:rotation="180"
             seekarc:startAngle="30"
             seekarc:sweepAngle="300"
-            seekarc:thumb="@drawable/custom_seek_arc_control_selector"/>
+            seekarc:thumb="@drawable/custom_seek_arc_control_selector"
+            seekarc:progressColor="@color/red"
+            seekarc:arcColor="@color/dark_red"/>
 
         <TextView
             android:id="@+id/seekArcProgress"

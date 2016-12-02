@@ -43,32 +43,27 @@ public class MainActivity extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		String [] items = getResources().getStringArray(R.array.items);
-		setListAdapter(new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, items));
+		String[] items = getResources().getStringArray(R.array.items);
+		setListAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items));
 	}
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		Intent intent;
+
 		switch (position) {
 			case 0:
-				intent = new Intent(this, SimpleActivity.class);
-				startActivity(intent);
+				intent = new Intent(this, DefaultActivity.class);
 				break;
 			case 1:
-				intent = new Intent(this, CustomActivity.class);
-				startActivity(intent);
+				intent = new Intent(this, ContinuousActivity.class);
 				break;
-			case 2:
-				intent = new Intent(this, ScrollViewActivity.class);
-				startActivity(intent);
-				break;
-			case 3:
-				intent = new Intent(this, DisabledActivity.class);
-				startActivity(intent);
-				break;
+			default:
+				intent = null;
 		}
+
+		if (intent != null)
+			startActivity(intent);
 	}
 
 }
