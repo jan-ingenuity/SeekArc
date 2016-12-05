@@ -23,7 +23,6 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:seekarc="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -39,20 +38,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1" >
 
-        <com.triggertrap.seekarc.SeekArc
-            android:id="@+id/seekArc"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:padding="30dp"
-            seekarc:clockwise="true"
-            seekarc:max="150"
-            seekarc:rotation="180"
-            seekarc:startAngle="30"
-            seekarc:sweepAngle="300"
-            seekarc:thumb="@drawable/custom_seek_arc_control_selector"
-            seekarc:progressColor="@color/red"
-            seekarc:arcColor="@color/dark_red"/>
+        <include layout="@layout/seekarc__continuous"/>
 
         <TextView
             android:id="@+id/seekArcProgress"

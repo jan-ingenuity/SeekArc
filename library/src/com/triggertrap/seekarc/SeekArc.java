@@ -337,23 +337,21 @@ public class SeekArc extends View {
 		float left;
 		float arcRadius;
 		float arcSweep;
+		int arcWidth;
 		int arcStart;
 		int arcDiameter;
-		int boundsThickness;
-		
-		arcDiameter = min - getPaddingLeft();
+
+		arcWidth = Math.max(mArcWidth, mProgressWidth);
+		arcDiameter = min - getPaddingLeft() - arcWidth;
 		arcRadius = arcDiameter / 2;
 		top = height / 2 - arcRadius;
 		left = width / 2 - arcRadius;
 
-		boundsThickness = Math.max(mArcWidth, mProgressWidth);
-		boundsThickness /= 2;
-
 		mTranslateX = (int) (width * 0.5f);
 		mTranslateY = (int) (height * 0.5f);
 		mArcRadius = (int)arcRadius;
-		mBoundsOuterRadius = mArcRadius + mBoundsOuter + boundsThickness;
-		mBoundsInnerRadius = mArcRadius - mBoundsInner - boundsThickness;
+
+		measureBounds();
 
 		mArcRect.set(left, top, left + arcDiameter, top + arcDiameter);
 
@@ -381,11 +379,10 @@ public class SeekArc extends View {
 					break;
 				case MotionEvent.ACTION_UP:
 					onStopTrackingTouch();
-					updateOnTouch(event);
+					setPressed(false);
 					this.getParent().requestDisallowInterceptTouchEvent(false);
 					break;
 				case MotionEvent.ACTION_CANCEL:
-					updateOnTouch(event);
 					onStopTrackingTouch();
 					setPressed(false);
 					this.getParent().requestDisallowInterceptTouchEvent(false);
@@ -404,6 +401,16 @@ public class SeekArc extends View {
 			mThumb.setState(state);
 		}
 		invalidate();
+	}
+
+	private void measureBounds() {
+		int boundsThickness;
+
+		boundsThickness = Math.max(mArcWidth, mProgressWidth);
+		boundsThickness /= 2;
+
+		mBoundsOuterRadius = mArcRadius + mBoundsOuter + boundsThickness;
+		mBoundsInnerRadius = mArcRadius - mBoundsInner - boundsThickness;
 	}
 
 	private void onStartTrackingTouch() {
@@ -561,6 +568,10 @@ public class SeekArc extends View {
 		updateProgress(progress, false);
 	}
 
+	public void setProgress() {
+		updateProgress(mProgress, false);
+	}
+
 	public int getProgress() {
 		return mProgress;
 	}
@@ -589,6 +600,7 @@ public class SeekArc extends View {
 
 	public void setInnerBounds(int bounds) {
 		mBoundsInner = bounds;
+		measureBounds();
 	}
 
 	public int getOuterBounds() {
@@ -597,6 +609,7 @@ public class SeekArc extends View {
 
 	public void setOuterBounds(int bounds) {
 		mBoundsOuter = bounds;
+		measureBounds();
 	}
 
 	public int getArcRotation() {
@@ -625,24 +638,30 @@ public class SeekArc extends View {
 		this.mSweepAngle = mSweepAngle;
 		updateThumbPosition();
 	}
+
+	public boolean isRoundedEdges() {
+		return mRoundedEdges;
+	}
 	
 	public void setRoundedEdges(boolean isEnabled) {
 		mRoundedEdges = isEnabled;
 		if (mRoundedEdges) {
 			mArcPaint.setStrokeCap(Paint.Cap.ROUND);
 			mProgressPaint.setStrokeCap(Paint.Cap.ROUND);
+			mProposedPaint.setStrokeCap(Paint.Cap.ROUND);
 		} else {
 			mArcPaint.setStrokeCap(Paint.Cap.SQUARE);
 			mProgressPaint.setStrokeCap(Paint.Cap.SQUARE);
+			mProposedPaint.setStrokeCap(Paint.Cap.SQUARE);
 		}
-	}
-	
-	public void setClockwise(boolean isClockwise) {
-		mClockwise = isClockwise;
 	}
 
 	public boolean isClockwise() {
 		return mClockwise;
+	}
+	
+	public void setClockwise(boolean isClockwise) {
+		mClockwise = isClockwise;
 	}
 
 	public boolean isEnabled() {

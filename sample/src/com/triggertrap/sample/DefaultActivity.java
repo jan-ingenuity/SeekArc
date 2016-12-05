@@ -25,6 +25,8 @@ package com.triggertrap.sample;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
@@ -47,6 +49,7 @@ public class DefaultActivity extends Activity {
 	private SeekBar mOuterBounds;
 	private CheckBox mRoundedEdges;
 	private CheckBox mEnabled;
+	private Button mCommit;
 	private TextView mSeekArcProgress;
 	private TextView mInnerBoundsLabel;
 	private TextView mOuterBoundsLabel;
@@ -68,6 +71,7 @@ public class DefaultActivity extends Activity {
 		mOuterBoundsLabel = (TextView) findViewById(R.id.outerBoundsLabel);
 		mRoundedEdges = (CheckBox) findViewById(R.id.roundedEdges);
 		mEnabled = (CheckBox) findViewById(R.id.enabled);
+		mCommit = (Button) findViewById(R.id.commit);
 
 		SeekBarListener barListener = new SeekBarListener();
 		CheckboxListener checkboxListener = new CheckboxListener();
@@ -88,9 +92,16 @@ public class DefaultActivity extends Activity {
 		mOuterBounds.setOnSeekBarChangeListener(barListener);
 
 		mRoundedEdges.setOnCheckedChangeListener(checkboxListener);
+		mRoundedEdges.setChecked(mSeekArc.isRoundedEdges());
 		mEnabled.setOnCheckedChangeListener(checkboxListener);
+		mEnabled.setChecked(mSeekArc.isEnabled());
+		mCommit.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mSeekArc.setProgress();
+			}
+		});
 	}
-
 
 	protected class SeekArcListener implements SeekArc.OnSeekArcChangeListener {
 		@Override
