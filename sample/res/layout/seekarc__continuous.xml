@@ -17,10 +17,14 @@
         seekarc:boundsOuter="36dp"
         seekarc:arcWidth="12dp"
         seekarc:progressWidth="12dp"
+        seekarc:clockwise="true"
+        seekarc:roundEdges="true"
+        seekarc:continuous="true"/>
+
+    <!--
         seekarc:thumb="@drawable/custom_seek_arc_control_selector"
         seekarc:progressColor="@color/red"
         seekarc:arcColor="@android:color/darker_gray"
-        seekarc:clockwise="true"
-        seekarc:roundEdges="true"/>
+    -->
 
 </merge>

@@ -42,6 +42,7 @@
         <attr name="roundEdges" format="boolean" />
         <attr name="clockwise" format="boolean" />
         <attr name="enabled" format="boolean" />
+        <attr name="continuous" format="boolean" />
 
         <attr name="arcColor" format="color" />
         <attr name="progressColor" format="color" />
@@ -51,5 +52,4 @@
     <declare-styleable name="SeekArcTheme">
         <attr name="seekArcStyle" format="reference"></attr>        
     </declare-styleable>
-
 </resources>

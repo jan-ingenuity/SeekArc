@@ -109,6 +109,12 @@ public class SeekArc extends View {
 	 */
 	private boolean mClockwise = true;
 
+	/**
+	 * When the mode goes back to non-continuous, use the value here.
+	 */
+	private int mNormalSweep = mSweepAngle;
+	private boolean mContinuous = false;
+
 
 	/**
 	 * is the control enabled/touchable
@@ -202,6 +208,8 @@ public class SeekArc extends View {
 		int thumbHalfheight;
 		int thumbHalfWidth;
 
+		boolean continuous = false;
+
 		mThumb = res.getDrawable(R.drawable.seek_arc_control_selector);
 		// Convert progress width to pixels for current density
 		mProgressWidth = (int) (mProgressWidth * density);
@@ -243,6 +251,8 @@ public class SeekArc extends View {
 			mClockwise = a.getBoolean(R.styleable.SeekArc_clockwise, mClockwise);
 			mEnabled = a.getBoolean(R.styleable.SeekArc_enabled, mEnabled);
 
+			continuous = a.getBoolean(R.styleable.SeekArc_continuous, continuous);
+
 			arcColor = a.getColor(R.styleable.SeekArc_arcColor, arcColor);
 			progressColor = a.getColor(R.styleable.SeekArc_progressColor, progressColor);
 			proposedColor = a.getColor(R.styleable.SeekArc_proposedColor, proposedColor);
@@ -255,6 +265,7 @@ public class SeekArc extends View {
 
 		mSweepAngle = (mSweepAngle > 360) ? 360 : mSweepAngle;
 		mSweepAngle = (mSweepAngle < 0) ? 0 : mSweepAngle;
+		mNormalSweep = mSweepAngle;
 
 		mProgressSweep = (float) mProgress / mMax * mSweepAngle;
 
@@ -286,6 +297,8 @@ public class SeekArc extends View {
 		mProposedPaint.setStrokeWidth(mProgressWidth);
 		//mProposedPaint.setPathEffect(effect);
 
+		setContinuous(continuous);
+
 		if (mRoundedEdges) {
 			mArcPaint.setStrokeCap(Paint.Cap.ROUND);
 			mProgressPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -305,10 +318,11 @@ public class SeekArc extends View {
 
 		canvas.drawArc(mArcRect, arcStart, arcSweep, false, mArcPaint);
 
-		if (mProgressSweep > 0)
+		if (!mContinuous && mProgressSweep > 0) {
 			canvas.drawArc(mArcRect, arcStart, mProgressSweep, false, mProgressPaint);
+		}
 
-		if (mDragging && mProposedSweep - mProgressSweep != 0) {
+		if (!mContinuous && mDragging && mProposedSweep - mProgressSweep != 0) {
 			// start: at the current progress degree
 			// sweep: only the different between the proposed and current progress.
 			canvas.drawArc(
@@ -438,7 +452,6 @@ public class SeekArc extends View {
 			return;
 
 		if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE) {
-
 			setPressed(true);
 			mDragging = true;
 		}
@@ -477,8 +490,8 @@ public class SeekArc extends View {
 		double angle;
 
 		angle = Math.toDegrees(Math.atan2(y, x) + (Math.PI / 2) - Math.toRadians(mRotation));
-		angle += angle < 0 ? 360 : 0;
 		angle -= mStartAngle;
+		angle += angle < 0 ? 360 : 0;
 
 		return angle;
 	}
@@ -670,6 +683,18 @@ public class SeekArc extends View {
 
 	public void setEnabled(boolean enabled) {
 		this.mEnabled = enabled;
+	}
+
+	public void setContinuous(boolean continuous) {
+		mContinuous = continuous;
+
+		if (continuous) {
+			mNormalSweep = mSweepAngle;
+			mSweepAngle = 360;
+		}
+		else {
+			mSweepAngle = mNormalSweep;
+		}
 	}
 
 	public int getProgressColor() {
