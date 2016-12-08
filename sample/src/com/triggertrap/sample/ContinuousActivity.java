@@ -23,6 +23,11 @@
  ******************************************************************************/
 package com.triggertrap.sample;
 
+
+import android.os.Bundle;
+import android.view.ViewGroup;
+
+
 /**
  * 
  * ContinuousActivity.java
@@ -33,5 +38,20 @@ public class ContinuousActivity extends DefaultActivity {
 	@Override
 	protected int getLayoutFile() {
 		return R.layout.sample__continuous;
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		if (mCommit.getParent() instanceof ViewGroup) {
+			ViewGroup controls;
+			ViewGroup parent;
+
+			parent = (ViewGroup)mCommit.getParent();
+
+			controls = (ViewGroup)findViewById(R.id.controls);
+			controls.removeView(parent);
+		}
 	}
 }

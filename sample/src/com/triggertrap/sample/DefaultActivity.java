@@ -30,11 +30,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.triggertrap.seekarc.SeekArc;
-import com.triggertrap.seekarc.SeekArc.OnSeekArcChangeListener;
+
 
 /**
  * 
@@ -44,15 +43,15 @@ import com.triggertrap.seekarc.SeekArc.OnSeekArcChangeListener;
  */
 public class DefaultActivity extends Activity {
 
-	private SeekArc mSeekArc;
-	private SeekBar mInnerBounds;
-	private SeekBar mOuterBounds;
-	private CheckBox mRoundedEdges;
-	private CheckBox mEnabled;
-	private Button mCommit;
-	private TextView mSeekArcProgress;
-	private TextView mInnerBoundsLabel;
-	private TextView mOuterBoundsLabel;
+	protected SeekArc mSeekArc;
+	protected SeekBar mInnerBounds;
+	protected SeekBar mOuterBounds;
+	protected CheckBox mRoundedEdges;
+	protected CheckBox mEnabled;
+	protected Button mCommit;
+	protected TextView mSeekArcProgress;
+	protected TextView mInnerBoundsLabel;
+	protected TextView mOuterBoundsLabel;
 
 	protected int getLayoutFile(){
 		return R.layout.sample__default;
@@ -98,7 +97,7 @@ public class DefaultActivity extends Activity {
 		mCommit.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mSeekArc.setProgress();
+				mSeekArc.commit();
 			}
 		});
 	}
