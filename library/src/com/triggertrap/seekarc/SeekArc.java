@@ -29,6 +29,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
@@ -47,9 +48,11 @@ import android.view.View;
  * 
  */
 public class SeekArc extends View {
-
 	private static final String TAG = SeekArc.class.getSimpleName();
+
 	private static int INVALID_PROGRESS_VALUE = -1;
+	private static double INVALID_ANGLE_VALUE = 999.00;
+
 	// The initial rotational offset -90 means we start at 12 o'clock
 	private final int mAngleOffset = -90;
 
@@ -93,6 +96,7 @@ public class SeekArc extends View {
 	 * The Angle through which to draw the arc (Max is 360)
 	 */
 	private int mSweepAngle = 360;
+	private int mSweepNormal = mSweepAngle; // use value here when reverting to non-continuous mode
 	
 	/**
 	 * The rotation of the SeekArc- 0 is twelve o'clock
@@ -110,20 +114,16 @@ public class SeekArc extends View {
 	private boolean mClockwise = true;
 
 	/**
-	 * When the mode goes back to non-continuous, use the value here.
-	 */
-	private int mNormalSweep = mSweepAngle;
-	private boolean mContinuous = false;
-
-
-	/**
 	 * is the control enabled/touchable
  	 */
 	private boolean mEnabled = true;
+
+	// Internal variables
+
+	private boolean mContinuous = false;
 	private boolean mAccepts = false;
 	private boolean mDragging = false;
 
-	// Internal variables
 	private int mArcRadius = 0;
 	private int mBoundsInnerRadius;
 	private int mBoundsOuterRadius;
@@ -131,7 +131,9 @@ public class SeekArc extends View {
 	private int mTranslateY;
 	private int mThumbXPos;
 	private int mThumbYPos;
-	private double mTouchAngle;
+	private double mTouchAngleStart;
+	private double mTouchAnglePrev;
+	private double mTouchAngle = INVALID_ANGLE_VALUE;
 	private float mProgressSweep = 0;
 	private float mProposedSweep = 0;
 
@@ -140,6 +142,7 @@ public class SeekArc extends View {
 	private Paint mProgressPaint;
 	private Paint mProposedPaint;
 	private OnSeekArcChangeListener mOnSeekArcChangeListener;
+	private Path.Direction mDirection;
 
 	public interface OnSeekArcChangeListener {
 
@@ -244,8 +247,8 @@ public class SeekArc extends View {
 
 			mProgressWidth = (int) a.getDimension(R.styleable.SeekArc_progressWidth, mProgressWidth);
 			mArcWidth = (int) a.getDimension(R.styleable.SeekArc_arcWidth, mArcWidth);
-			mBoundsInner = (int)a.getDimension(R.styleable.SeekArc_boundsInner, mBoundsInner);
-			mBoundsOuter = (int)a.getDimension(R.styleable.SeekArc_boundsOuter, mBoundsOuter);
+			mBoundsInner = (int) a.getDimension(R.styleable.SeekArc_boundsInner, mBoundsInner);
+			mBoundsOuter = (int) a.getDimension(R.styleable.SeekArc_boundsOuter, mBoundsOuter);
 
 			mRoundedEdges = a.getBoolean(R.styleable.SeekArc_roundEdges, mRoundedEdges);
 			mClockwise = a.getBoolean(R.styleable.SeekArc_clockwise, mClockwise);
@@ -265,7 +268,7 @@ public class SeekArc extends View {
 
 		mSweepAngle = (mSweepAngle > 360) ? 360 : mSweepAngle;
 		mSweepAngle = (mSweepAngle < 0) ? 0 : mSweepAngle;
-		mNormalSweep = mSweepAngle;
+		mSweepNormal = mSweepAngle;
 
 		mProgressSweep = (float) mProgress / mMax * mSweepAngle;
 
@@ -318,23 +321,27 @@ public class SeekArc extends View {
 
 		canvas.drawArc(mArcRect, arcStart, arcSweep, false, mArcPaint);
 
-		if (!mContinuous && mProgressSweep > 0) {
+		if (!mContinuous && mProgressSweep > 0)
 			canvas.drawArc(mArcRect, arcStart, mProgressSweep, false, mProgressPaint);
-		}
 
-		if (!mContinuous && mDragging && mProposedSweep - mProgressSweep != 0) {
+		float proposedStart;
+		float proposedSweep;
+
+		if (mContinuous) {
+			proposedStart = (float)(mTouchAngleStart + mAngleOffset);
+			proposedSweep = mProposedSweep;
+		}
+		else {
 			// start: at the current progress degree
 			// sweep: only the different between the proposed and current progress.
-			canvas.drawArc(
-				mArcRect,
-				arcStart + mProgressSweep,
-				mProposedSweep - mProgressSweep,
-				false,
-				mProposedPaint
-			);
+			proposedStart = arcStart + mProgressSweep;
+			proposedSweep = mProposedSweep - mProgressSweep;
 		}
 
-		if(mEnabled) {
+		if (mDragging && proposedSweep != 0)
+			canvas.drawArc(mArcRect, proposedStart, proposedSweep, false, mProposedPaint);
+
+		if (mEnabled) {
 			// Draw the thumb nail
 			canvas.translate(mTranslateX - mThumbXPos, mTranslateY - mThumbYPos);
 			mThumb.draw(canvas);
@@ -460,7 +467,13 @@ public class SeekArc extends View {
 			mDragging = false;
 		}
 
+		mTouchAnglePrev = mTouchAngle;
 		mTouchAngle = getTouchDegrees(x, y);
+
+		if (action == MotionEvent.ACTION_DOWN)
+			mTouchAngleStart = mTouchAngle;
+
+		mDirection = getTouchDirection();
 
 		onProgressRefresh(getProgressForAngle(mTouchAngle), true);
 	}
@@ -470,13 +483,7 @@ public class SeekArc extends View {
 		float y = yPos - mTranslateY;
 		float touchRadius = (float) Math.sqrt(((x * x) + (y * y)));
 
-		boolean ignore = false;
-
-		if (touchRadius < mBoundsInnerRadius || touchRadius > mBoundsOuterRadius) {
-			ignore = true;
-		}
-
-		return ignore;
+		return touchRadius < mBoundsInnerRadius || touchRadius > mBoundsOuterRadius;
 	}
 
 	private double getTouchDegrees(float xPos, float yPos) {
@@ -496,17 +503,38 @@ public class SeekArc extends View {
 		return angle;
 	}
 
+	private Path.Direction getTouchDirection() {
+		double startLower = (mTouchAngleStart - 1) % 360,
+			   startUpper = (mTouchAngleStart + 1) % 360;
+
+		if (mDirection != null)
+			if (startLower < mTouchAngle && mTouchAngle < startUpper)
+				return null;
+			else
+				return mDirection;
+
+//		if ((int)mTouchAngle == (int)mTouchAngleStart)
+//			return null;
+//
+//		if (mDirection != null)
+//			return mDirection;
+
+		else if (mTouchAngle < mTouchAngleStart || mTouchAngle == 360 && mTouchAngleStart == 0)
+			return Path.Direction.CCW;
+
+		else if (mTouchAngle > mTouchAngleStart|| mTouchAngleStart == 0 && mTouchAngle == 360)
+			return Path.Direction.CW;
+
+		return mDirection;
+	}
+
 	private int getProgressForAngle(double angle) {
 		int touchProgress = (int) Math.round(valuePerDegree() * angle);
 
-		if (mDragging) {
-			touchProgress = (touchProgress < 0) ? INVALID_PROGRESS_VALUE : touchProgress;
-			touchProgress = (touchProgress > mMax) ? INVALID_PROGRESS_VALUE : touchProgress;
+		touchProgress = (touchProgress < 0) ? INVALID_PROGRESS_VALUE : touchProgress;
+		touchProgress = (touchProgress > mMax) ? INVALID_PROGRESS_VALUE : touchProgress;
 
-			return touchProgress;
-		}
-		else
-			return -1;
+		return touchProgress;
 	}
 
 	private float valuePerDegree() {
@@ -524,17 +552,20 @@ public class SeekArc extends View {
 		float sweep;
 		int angle;
 
-		sweep = mDragging ? mProposedSweep : mProgressSweep;
-		angle = (int) (mStartAngle + sweep + mRotation + 90);
+		if (mContinuous)
+			sweep = mProgressSweep;
+		else
+			sweep = mDragging ? mProposedSweep : mProgressSweep;
+
+		angle = (int) (mStartAngle + sweep + mRotation - mAngleOffset);
 
 		mThumbXPos = (int) (mArcRadius * Math.cos(Math.toRadians(angle)));
 		mThumbYPos = (int) (mArcRadius * Math.sin(Math.toRadians(angle)));
 	}
 	
 	private void updateProgress(int progress, boolean fromUser) {
-		if (progress == INVALID_PROGRESS_VALUE) {
+		if (progress == INVALID_PROGRESS_VALUE)
 			return;
-		}
 
 		if (mOnSeekArcChangeListener != null)
 			mOnSeekArcChangeListener.onProgressChanged(this, progress, fromUser);
@@ -557,7 +588,26 @@ public class SeekArc extends View {
 		if (mOnSeekArcChangeListener != null)
 			mOnSeekArcChangeListener.onProgressChanged(this, progress, fromUser);
 
-		mProposedSweep = (float) progress / mMax * mSweepAngle;
+		if (mContinuous) {
+			if (mDirection == Path.Direction.CW) {
+				mProposedSweep = (float) (mTouchAngle - mTouchAngleStart);
+				mProposedSweep = mProposedSweep >= 0
+							   ? mProposedSweep
+							   : (float) (360 - mTouchAngleStart + mTouchAngle);
+			}
+			else if (mDirection == Path.Direction.CCW) {
+				mProposedSweep = (float) (mTouchAngle - mTouchAngleStart);
+				mProposedSweep = mProposedSweep <= 0
+							   ? mProposedSweep
+							   : (float) (mTouchAngle - 360 - mTouchAngleStart);
+			}
+			else
+				mProposedSweep = 0;
+
+			mProgressSweep = (float)progress / mMax * mSweepAngle;
+		}
+		else
+			mProposedSweep = (float)progress / mMax * mSweepAngle;
 
 		updateThumbPosition();
 		invalidate();
@@ -581,8 +631,12 @@ public class SeekArc extends View {
 		updateProgress(progress, false);
 	}
 
-	public void setProgress() {
+	public void commit() {
 		updateProgress(mProgress, false);
+	}
+
+	public void rollback() {
+
 	}
 
 	public int getProgress() {
@@ -689,11 +743,11 @@ public class SeekArc extends View {
 		mContinuous = continuous;
 
 		if (continuous) {
-			mNormalSweep = mSweepAngle;
+			mSweepNormal = mSweepAngle;
 			mSweepAngle = 360;
 		}
 		else {
-			mSweepAngle = mNormalSweep;
+			mSweepAngle = mSweepNormal;
 		}
 	}
 
