@@ -23,6 +23,6 @@
 -->
 <resources>
 
-    <string name="app_name">Seekarc_library</string>
+    <string name="app__name">Seekarc_library</string>
 
 </resources>
