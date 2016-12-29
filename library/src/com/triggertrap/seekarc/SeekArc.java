@@ -634,6 +634,12 @@ public class SeekArc extends View {
 		updateProgress(progress, false);
 	}
 
+	public void setDelta(int progress) {
+		mDragging = true;
+		updateDelta(progress, false);
+		onStopTrackingTouch();
+	}
+
 	public void commit() {
 		updateProgress(mProgress, false);
 	}
