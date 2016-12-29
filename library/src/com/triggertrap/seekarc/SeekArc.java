@@ -124,6 +124,7 @@ public class SeekArc extends View {
 	private boolean mAccepts = false;
 	private boolean mDragging = false;
 
+	private int mThumbOffset = 0;
 	private int mArcRadius = 0;
 	private int mBoundsInnerRadius;
 	private int mBoundsOuterRadius;
@@ -237,6 +238,8 @@ public class SeekArc extends View {
 			thumbHalfheight = mThumb.getIntrinsicHeight() / 2;
 			thumbHalfWidth = mThumb.getIntrinsicWidth() / 2;
 			mThumb.setBounds(-thumbHalfWidth, -thumbHalfheight, thumbHalfWidth, thumbHalfheight);
+
+			mThumbOffset = (int) a.getDimension(R.styleable.SeekArc_thumbOffset, mThumbOffset);
 
 			mMax = a.getInteger(R.styleable.SeekArc_max, mMax);
 			mProgress = a.getInteger(R.styleable.SeekArc_progress, mProgress);
@@ -370,7 +373,7 @@ public class SeekArc extends View {
 
 		mTranslateX = (int) (width * 0.5f);
 		mTranslateY = (int) (height * 0.5f);
-		mArcRadius = (int)arcRadius;
+		mArcRadius = (int)arcRadius - mThumbOffset;
 
 		measureBounds();
 
