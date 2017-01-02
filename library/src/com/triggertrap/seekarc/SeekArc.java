@@ -125,6 +125,9 @@ public class SeekArc extends View {
 	private boolean mDragging = false;
 
 	private int mThumbOffset = 0;
+	private int mThumbRadius = 0;
+//	private int mThumbInnerRadius;
+//	private int mThumbOuterRadius;
 	private int mArcRadius = 0;
 	private int mBoundsInnerRadius;
 	private int mBoundsOuterRadius;
@@ -209,7 +212,7 @@ public class SeekArc extends View {
 		int progressColor = res.getColor(R.color.default_blue_light);
 		int proposedColor = res.getColor(R.color.proposed_red);
 
-		int thumbHalfheight;
+		int thumbHalfHeight;
 		int thumbHalfWidth;
 
 		boolean continuous = false;
@@ -235,9 +238,9 @@ public class SeekArc extends View {
 				mThumb = thumb;
 			}
 
-			thumbHalfheight = mThumb.getIntrinsicHeight() / 2;
+			thumbHalfHeight = mThumb.getIntrinsicHeight() / 2;
 			thumbHalfWidth = mThumb.getIntrinsicWidth() / 2;
-			mThumb.setBounds(-thumbHalfWidth, -thumbHalfheight, thumbHalfWidth, thumbHalfheight);
+			mThumb.setBounds(-thumbHalfWidth, -thumbHalfHeight, thumbHalfWidth, thumbHalfHeight);
 
 			mThumbOffset = (int) a.getDimension(R.styleable.SeekArc_thumbOffset, mThumbOffset);
 
@@ -373,7 +376,8 @@ public class SeekArc extends View {
 
 		mTranslateX = (int) (width * 0.5f);
 		mTranslateY = (int) (height * 0.5f);
-		mArcRadius = (int)arcRadius - mThumbOffset;
+		mArcRadius = (int)arcRadius;
+		mThumbRadius = mArcRadius - mThumbOffset;
 
 		measureBounds();
 
@@ -382,8 +386,8 @@ public class SeekArc extends View {
 		arcSweep = mDragging ? mProposedSweep : mProgressSweep;
 		arcStart = (int)arcSweep + mStartAngle  + mRotation + -mAngleOffset;
 
-		mThumbXPos = (int) (mArcRadius * Math.cos(Math.toRadians(arcStart)));
-		mThumbYPos = (int) (mArcRadius * Math.sin(Math.toRadians(arcStart)));
+		mThumbXPos = (int) (mThumbRadius * Math.cos(Math.toRadians(arcStart)));
+		mThumbYPos = (int) (mThumbRadius * Math.sin(Math.toRadians(arcStart)));
 
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
@@ -429,12 +433,18 @@ public class SeekArc extends View {
 
 	private void measureBounds() {
 		int boundsThickness;
-
 		boundsThickness = Math.max(mArcWidth, mProgressWidth);
 		boundsThickness /= 2;
 
 		mBoundsOuterRadius = mArcRadius + mBoundsOuter + boundsThickness;
 		mBoundsInnerRadius = mArcRadius - mBoundsInner - boundsThickness;
+
+//		int thumbSize;
+//		thumbSize = Math.min(mThumb.getIntrinsicWidth(), mThumb.getIntrinsicHeight());
+//		thumbSize = thumbSize / 2;
+//
+//		mThumbInnerRadius = mThumbRadius - thumbSize;
+//		mThumbOuterRadius = mThumbRadius + thumbSize;
 	}
 
 	private void onStartTrackingTouch() {
@@ -487,6 +497,9 @@ public class SeekArc extends View {
 		float touchRadius = (float) Math.sqrt(((x * x) + (y * y)));
 
 		return touchRadius < mBoundsInnerRadius || touchRadius > mBoundsOuterRadius;
+
+//		return (touchRadius < mBoundsInnerRadius || touchRadius > mBoundsOuterRadius)
+//			&& (touchRadius < mThumbInnerRadius || touchRadius > mThumbOuterRadius);
 	}
 
 	private double getTouchDegrees(float xPos, float yPos) {
@@ -562,8 +575,8 @@ public class SeekArc extends View {
 
 		angle = (int) (mStartAngle + sweep + mRotation - mAngleOffset);
 
-		mThumbXPos = (int) (mArcRadius * Math.cos(Math.toRadians(angle)));
-		mThumbYPos = (int) (mArcRadius * Math.sin(Math.toRadians(angle)));
+		mThumbXPos = (int)(mThumbRadius * Math.cos(Math.toRadians(angle)));
+		mThumbYPos = (int)(mThumbRadius * Math.sin(Math.toRadians(angle)));
 	}
 	
 	private void updateProgress(int progress, boolean fromUser) {
@@ -637,7 +650,6 @@ public class SeekArc extends View {
 	public void setDelta(int progress) {
 		mDragging = true;
 		updateDelta(progress, false);
-		onStopTrackingTouch();
 	}
 
 	public void commit() {
