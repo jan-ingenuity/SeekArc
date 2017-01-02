@@ -395,29 +395,34 @@ public class SeekArc extends View {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (mEnabled) {
+			int action = event.getAction();
+			boolean handled;
+
 			this.getParent().requestDisallowInterceptTouchEvent(true);
 
-			switch (event.getAction()) {
-				case MotionEvent.ACTION_DOWN:
+			if (action == MotionEvent.ACTION_DOWN) {
+				handled = updateOnTouch(event);
+
+				if (handled)
 					onStartTrackingTouch();
-					updateOnTouch(event);
-					break;
-				case MotionEvent.ACTION_MOVE:
-					updateOnTouch(event);
-					break;
-				case MotionEvent.ACTION_UP:
-					onStopTrackingTouch();
-					setPressed(false);
-					this.getParent().requestDisallowInterceptTouchEvent(false);
-					break;
-				case MotionEvent.ACTION_CANCEL:
-					onStopTrackingTouch();
-					setPressed(false);
-					this.getParent().requestDisallowInterceptTouchEvent(false);
-					break;
 			}
-			return true;
+			else if (action == MotionEvent.ACTION_MOVE) {
+				handled = updateOnTouch(event);
+			}
+			else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+				setPressed(false);
+				onStopTrackingTouch();
+
+				getParent().requestDisallowInterceptTouchEvent(false);
+
+				handled = true;
+			}
+			else
+				handled = false;
+
+			return handled;
 		}
+
 		return false;
 	}
 
@@ -459,7 +464,7 @@ public class SeekArc extends View {
 		}
 	}
 
-	private void updateOnTouch(MotionEvent event) {
+	private boolean updateOnTouch(MotionEvent event) {
 		float x = event.getX();
 		float y = event.getY();
 
@@ -469,7 +474,7 @@ public class SeekArc extends View {
 			mAccepts = !ignoreTouch(x, y);
 
 		if (!mAccepts)
-			return;
+			return false;
 
 		if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE) {
 			setPressed(true);
@@ -489,6 +494,8 @@ public class SeekArc extends View {
 		mDirection = getTouchDirection();
 
 		onProgressRefresh(getProgressForAngle(mTouchAngle), true);
+
+		return true;
 	}
 
 	private boolean ignoreTouch(float xPos, float yPos) {
