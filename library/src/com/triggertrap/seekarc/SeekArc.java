@@ -212,9 +212,6 @@ public class SeekArc extends View {
 		int progressColor = res.getColor(R.color.default_blue_light);
 		int proposedColor = res.getColor(R.color.proposed_red);
 
-		int thumbHalfHeight;
-		int thumbHalfWidth;
-
 		boolean continuous = false;
 
 		mThumb = res.getDrawable(R.drawable.seek_arc_control_selector);
@@ -233,14 +230,7 @@ public class SeekArc extends View {
 				0
 			);
 
-			Drawable thumb = a.getDrawable(R.styleable.SeekArc_thumb);
-			if (thumb != null) {
-				mThumb = thumb;
-			}
-
-			thumbHalfHeight = mThumb.getIntrinsicHeight() / 2;
-			thumbHalfWidth = mThumb.getIntrinsicWidth() / 2;
-			mThumb.setBounds(-thumbHalfWidth, -thumbHalfHeight, thumbHalfWidth, thumbHalfHeight);
+			this.setThumbDrawable(a.getDrawable(R.styleable.SeekArc_thumb));
 
 			mThumbOffset = (int) a.getDimension(R.styleable.SeekArc_thumbOffset, mThumbOffset);
 
@@ -650,8 +640,20 @@ public class SeekArc extends View {
 		mOnSeekArcChangeListener = l;
 	}
 
+	public int getMax() {
+		return mMax;
+	}
+
+	public void setMax(int mMax) {
+		this.mMax = mMax;
+	}
+
 	public void setProgress(int progress) {
 		updateProgress(progress, false);
+	}
+
+	public int getProgress() {
+		return mProgress;
 	}
 
 	public void setDelta(int progress) {
@@ -665,28 +667,6 @@ public class SeekArc extends View {
 
 	public void rollback() {
 
-	}
-
-	public int getProgress() {
-		return mProgress;
-	}
-
-	public int getProgressWidth() {
-		return mProgressWidth;
-	}
-
-	public void setProgressWidth(int mProgressWidth) {
-		this.mProgressWidth = mProgressWidth;
-		mProgressPaint.setStrokeWidth(mProgressWidth);
-	}
-	
-	public int getArcWidth() {
-		return mArcWidth;
-	}
-
-	public void setArcWidth(int mArcWidth) {
-		this.mArcWidth = mArcWidth;
-		mArcPaint.setStrokeWidth(mArcWidth);
 	}
 
 	public int getInnerBounds() {
@@ -705,6 +685,24 @@ public class SeekArc extends View {
 	public void setOuterBounds(int bounds) {
 		mBoundsOuter = bounds;
 		measureBounds();
+	}
+
+	public int getProgressWidth() {
+		return mProgressWidth;
+	}
+
+	public void setProgressWidth(int mProgressWidth) {
+		this.mProgressWidth = mProgressWidth;
+		mProgressPaint.setStrokeWidth(mProgressWidth);
+	}
+
+	public int getArcWidth() {
+		return mArcWidth;
+	}
+
+	public void setArcWidth(int mArcWidth) {
+		this.mArcWidth = mArcWidth;
+		mArcPaint.setStrokeWidth(mArcWidth);
 	}
 
 	public int getArcRotation() {
@@ -734,6 +732,19 @@ public class SeekArc extends View {
 		updateThumbPosition();
 	}
 
+	public void setThumbDrawable(Drawable thumb) {
+		int thumbHalfHeight;
+		int thumbHalfWidth;
+
+		if (thumb != null)
+			mThumb = thumb;
+
+		thumbHalfHeight = mThumb.getIntrinsicHeight() / 2;
+		thumbHalfWidth = mThumb.getIntrinsicWidth() / 2;
+
+		mThumb.setBounds(-thumbHalfWidth, -thumbHalfHeight, thumbHalfWidth, thumbHalfHeight);
+	}
+
 	public boolean isRoundedEdges() {
 		return mRoundedEdges;
 	}
@@ -751,10 +762,28 @@ public class SeekArc extends View {
 		}
 	}
 
+	public int getProgressColor() {
+		return mProgressPaint.getColor();
+	}
+
+	public void setProgressColor(int color) {
+		mProgressPaint.setColor(color);
+		invalidate();
+	}
+
+	public int getArcColor() {
+		return mArcPaint.getColor();
+	}
+
+	public void setArcColor(int color) {
+		mArcPaint.setColor(color);
+		invalidate();
+	}
+
 	public boolean isClockwise() {
 		return mClockwise;
 	}
-	
+
 	public void setClockwise(boolean isClockwise) {
 		mClockwise = isClockwise;
 	}
@@ -777,31 +806,5 @@ public class SeekArc extends View {
 		else {
 			mSweepAngle = mSweepNormal;
 		}
-	}
-
-	public int getProgressColor() {
-		return mProgressPaint.getColor();
-	}
-
-	public void setProgressColor(int color) {
-		mProgressPaint.setColor(color);
-		invalidate();
-	}
-
-	public int getArcColor() {
-		return mArcPaint.getColor();
-	}
-
-	public void setArcColor(int color) {
-		mArcPaint.setColor(color);
-		invalidate();
-	}
-
-	public int getMax() {
-		return mMax;
-	}
-
-	public void setMax(int mMax) {
-		this.mMax = mMax;
 	}
 }
