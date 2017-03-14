@@ -575,44 +575,48 @@ public class SeekArc extends View {
 		mThumbXPos = (int)(mThumbRadius * Math.cos(Math.toRadians(angle)));
 		mThumbYPos = (int)(mThumbRadius * Math.sin(Math.toRadians(angle)));
 	}
-	
+
+	private void updateProgressAngle(int progress) {
+		if (progress == INVALID_PROGRESS_VALUE)
+			return;
+
+		mProgressSweep = (float) progress / mMax * mSweepAngle;
+	}
+
 	private void updateProgress(int progress, boolean fromUser) {
 		if (progress == INVALID_PROGRESS_VALUE)
 			return;
 
+		this.updateProgressAngle(progress);
+
 		if (mOnSeekArcChangeListener != null)
 			mOnSeekArcChangeListener.onProgressChanged(this, progress, fromUser);
-
-		mProgressSweep = (float) progress / mMax * mSweepAngle;
 
 		updateThumbPosition();
 		invalidate();
 	}
 
-	private void updateDelta(int progress, boolean fromUser) {
+	private int updateDeltaAngle(int progress) {
 		if (progress == INVALID_PROGRESS_VALUE)
-			return;
+			return 0;
 
 		progress = progress > mMax ? mMax : progress;
 		progress = progress < 0 ? 0 : progress;
 
 		mProgress = progress;
 
-		if (mOnSeekArcChangeListener != null)
-			mOnSeekArcChangeListener.onProgressChanged(this, progress, fromUser);
-
 		if (mContinuous) {
 			if (mDirection == Path.Direction.CW) {
 				mProposedSweep = (float) (mTouchAngle - mTouchAngleStart);
 				mProposedSweep = mProposedSweep >= 0
-							   ? mProposedSweep
-							   : (float) (360 - mTouchAngleStart + mTouchAngle);
+					? mProposedSweep
+					: (float) (360 - mTouchAngleStart + mTouchAngle);
 			}
 			else if (mDirection == Path.Direction.CCW) {
 				mProposedSweep = (float) (mTouchAngle - mTouchAngleStart);
 				mProposedSweep = mProposedSweep <= 0
-							   ? mProposedSweep
-							   : (float) (mTouchAngle - 360 - mTouchAngleStart);
+					? mProposedSweep
+					: (float) (mTouchAngle - 360 - mTouchAngleStart);
 			}
 			else
 				mProposedSweep = 0;
@@ -621,6 +625,18 @@ public class SeekArc extends View {
 		}
 		else
 			mProposedSweep = (float)progress / mMax * mSweepAngle;
+
+		return progress;
+	}
+
+	private void updateDelta(int progress, boolean fromUser) {
+		if (progress == INVALID_PROGRESS_VALUE)
+			return;
+
+		progress = updateDeltaAngle(progress);
+
+		if (mOnSeekArcChangeListener != null)
+			mOnSeekArcChangeListener.onProgressChanged(this, progress, fromUser);
 
 		updateThumbPosition();
 		invalidate();
@@ -649,7 +665,11 @@ public class SeekArc extends View {
 	}
 
 	public void setProgress(int progress) {
-		updateProgress(progress, false);
+		updateDeltaAngle(progress);
+		updateProgressAngle(progress);
+
+		updateThumbPosition();
+		invalidate();
 	}
 
 	public int getProgress() {
@@ -663,10 +683,6 @@ public class SeekArc extends View {
 
 	public void commit() {
 		updateProgress(mProgress, false);
-	}
-
-	public void rollback() {
-
 	}
 
 	public int getInnerBounds() {
