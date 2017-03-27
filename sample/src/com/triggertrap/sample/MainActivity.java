@@ -58,6 +58,9 @@ public class MainActivity extends ListActivity {
 			case 1:
 				intent = new Intent(this, ContinuousActivity.class);
 				break;
+			case 2:
+				intent = new Intent(this, UpdateActivity.class);
+				break;
 			default:
 				intent = null;
 		}

@@ -97,7 +97,7 @@ public class DefaultActivity extends Activity {
 		mCommit.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mSeekArc.commit();
+				mSeekArc.setValue(mSeekArc.getValue());
 			}
 		});
 	}

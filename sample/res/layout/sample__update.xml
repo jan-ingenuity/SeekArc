@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <RelativeLayout
+        android:id="@+id/controls__holder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <EditText
+            android:id="@+id/progress"
+            android:layout_toRightOf="@+id/progress__label"
+            android:layout_toLeftOf="@+id/progress__btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"/>
+
+        <TextView
+            android:id="@id/progress__label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/progress"
+            android:layout_alignParentLeft="true"
+            android:text="Set Progress To:"/>
+
+        <Button
+            android:id="@+id/progress__btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/progress"
+            android:layout_alignBottom="@id/progress"
+            android:layout_alignParentRight="true"
+            android:text="Set"/>
+
+
+        <EditText
+            android:id="@+id/delta"
+            android:layout_below="@id/progress"
+            android:layout_toRightOf="@+id/delta__label"
+            android:layout_toLeftOf="@+id/delta__btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"/>
+
+        <TextView
+            android:id="@id/delta__label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/delta"
+            android:layout_alignParentLeft="true"
+            android:text="Set Delta To:"/>
+
+        <Button
+            android:id="@+id/delta__btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/delta"
+            android:layout_alignBottom="@id/delta"
+            android:layout_alignParentRight="true"
+            android:text="Set"/>
+
+
+        <EditText
+            android:id="@+id/value"
+            android:layout_below="@id/delta"
+            android:layout_toRightOf="@+id/value__label"
+            android:layout_toLeftOf="@+id/value__btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"/>
+
+        <TextView
+            android:id="@id/value__label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/value"
+            android:layout_alignParentLeft="true"
+            android:text="Set Value To:"/>
+
+        <Button
+            android:id="@+id/value__btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/value"
+            android:layout_alignBottom="@id/value"
+            android:layout_alignParentRight="true"
+            android:text="Set"/>
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/arc__holder"
+        android:layout_above="@id/controls__holder"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentTop="true">
+        <include layout="@layout/seekarc__default"/>
+
+        <TextView
+            android:id="@+id/arc__value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="0"
+            android:textSize="40sp" />
+    </FrameLayout>
+
+</RelativeLayout>

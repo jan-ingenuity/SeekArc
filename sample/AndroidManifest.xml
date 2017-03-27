@@ -54,6 +54,9 @@
             android:name="com.triggertrap.sample.ContinuousActivity"
             android:label="@string/title__continuous" >
         </activity>
+
+        <activity android:name=".UpdateActivity"
+            android:label="Update SeekArc"/>
     </application>
 
 </manifest>

@@ -29,9 +29,11 @@
     <string-array name="items">
         <item>@string/title__default</item>
         <item>@string/title__continuous</item>
+        <item>@string/title__update</item>
     </string-array>
 
     <string name="title__default">Default SeekArc</string>
     <string name="title__continuous">Continuous SeekArc</string>
+    <string name="title__update">Update SeekArc</string>
 
 </resources>
