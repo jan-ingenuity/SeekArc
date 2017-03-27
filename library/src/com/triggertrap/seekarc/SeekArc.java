@@ -580,7 +580,7 @@ public class SeekArc extends View {
 		if (progress == INVALID_PROGRESS_VALUE)
 			return;
 
-		mProgressSweep = (float) progress / mMax * mSweepAngle;
+		mProgressSweep = (float)progress / mMax * mSweepAngle;
 	}
 
 	private void updateProgress(int progress, boolean fromUser) {
@@ -664,25 +664,36 @@ public class SeekArc extends View {
 		this.mMax = mMax;
 	}
 
-	public void setProgress(int progress) {
+	public void setValue(int progress) {
+		updateProgressAngle(progress);
 		updateDeltaAngle(progress);
+
+		updateThumbPosition();
+		invalidate();
+	}
+
+	public int getValue() {
+		return mProgress;
+	}
+
+	public void setProgress(int progress) {
 		updateProgressAngle(progress);
 
 		updateThumbPosition();
 		invalidate();
 	}
 
+	/**
+	 * Returns the value of the progress arc as depicted by the angle of the arc. This is different
+	 * from getValue() where it returns the *actual* value being represented in the arc.
+	 */
 	public int getProgress() {
-		return mProgress;
+		return Math.round(mProgressSweep * mMax / mSweepAngle);
 	}
 
 	public void setDelta(int progress) {
 		mDragging = true;
 		updateDelta(progress, false);
-	}
-
-	public void commit() {
-		updateProgress(mProgress, false);
 	}
 
 	public int getInnerBounds() {
