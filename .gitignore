@@ -29,3 +29,6 @@ proguard/
 *.ipr
 *.iws
 .idea/
+
+# Local machine-generated files
+.DS_Store
